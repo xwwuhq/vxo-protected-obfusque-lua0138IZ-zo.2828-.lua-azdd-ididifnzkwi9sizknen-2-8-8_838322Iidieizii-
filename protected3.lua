@@ -1517,21 +1517,26 @@
 
 
 
-local player = game:GetService("Players").LocalPlayer
+local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local function decode(data)
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if (x == '=') then return '' end
+        local r,f='',(b:find(x)-1)
+        for i=6,1,-1 do
+            r=r..(f%2^i - f%2^(i-1) > 0 and '1' or '0')
+        end
+        return r
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if (#x ~= 8) then return '' end
+        local c=0
+        for i=1,8 do
+            c=c + (x:sub(i,i)=='1' and 2^(8-i) or 0)
+        end
+        return string.char(c)
+    end))
+end
 
-local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local code = "bG9jYWwgcGxheWVyID0gZ2FtZTpHZXRTZXJ2aWNlKCJQbGF5ZXJzIikuTG9jYWxQbGF5ZXIKbG9jYWwgZ3VpID0gSW5zdGFuY2UubmV3KCJTY3JlZW5HdWkiLCBwbGF5ZXI6V2FpdEZvckNoaWxkKCJQbGF5ZXJHdWkiKSkKbG9jYWwgYnV0dG9uID0gSW5zdGFuY2UubmV3KCJUZXh0QnV0dG9uIiwgZ3VpKQpidXR0b24uU2l6ZSA9IFVEaW0yLm5ldygwLCAyMDAsIDAsIDYwKQpidXR0b24uUG9zaXRpb24gPSBVZGltMi5uZXcoMC41LCAtMTAwLCAwLjUsIC0zMCkKYnV0dG9uLlRleHQgPSAiVGVzdCIKYnV0dG9uLkJhY2tncm91bmRDb2xvcjMgPSBDb2xvcjMuZnJvbVJHQig1MCwgNTAsIDUwKQpidXR0b24uVGV4dENvbG9yMyA9IENvbG9yMy5mcm9tUkdCKDI1NSwgMjU1LCAyNTUpCmJ1dHRvbi5UZXh0U2NhbGVkID0gdHJ1ZQpidXR0b24uRm9udCA9IEVudW0uRm9udC5Hb3RoYW1Cb2xkCkluc3RhbmNlLm5ldygiVUlDb3JuZXIiLCBidXR0b24pLkNvcm5lclJhZGl1cyA9IFVEaW0ubmV3KDAsIDEyKQpidXR0b24uTW91c2VCdXR0b24xQ2xpY2s6Q29ubmVjdChmdW5jdGlvbigpCiAgICBwcmludCgiVGVzdCIpCmVuZCk="
 
-local button = Instance.new("TextButton", gui)
-button.Size = UDim2.new(0, 200, 0, 60)
-button.Position = UDim2.new(0.5, -100, 0.5, -30)
-button.Text = "Test"
-button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.TextScaled = true
-button.Font = Enum.Font.GothamBold
-
-Instance.new("UICorner", button).CornerRadius = UDim.new(0, 12)
-
-button.MouseButton1Click:Connect(function()
-	print("Test")
-end)
+loadstring(decode(code))()
